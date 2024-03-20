@@ -1,0 +1,120 @@
+@import 'https://fonts.googleapis.com/css2?family=Raleway&display=swap';
+:root {
+  --pal1: #789395;
+  --pal2: #94b49f;
+  --pal3: #b4cfb0;
+  --pal4: #e5e3c9;
+  --pal5: #d82148;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Raleway, sans-serif;
+}
+
+body {
+  background-color: #e9e8eb;
+}
+
+main {
+  margin-top: 100px;
+}
+
+.btn {
+  min-width: 44px;
+  min-height: 44px;
+  color: #fff;
+  padding: 10px;
+  border-radius: 10px;
+  border: 0;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: medium;
+  margin: 0 5px;
+}
+
+.btn-primary {
+  background-color: var(--pal2);
+}
+
+.btn-primary:hover {
+  background-color: #728c7b;
+}
+
+.btn-danger {
+  background-color: var(--pal5);
+}
+
+.btn-danger:hover {
+  background-color: #bb1d3f;
+}
+
+.notes-input {
+  width: 40%;
+  position: relative;
+  margin: 40px auto;
+  background-color: var(--pal4);
+  padding: 20px;
+  text-align: center;
+  border-left: 20px solid var(--pal1);
+}
+
+.close {
+  margin: 0;
+  border-radius: 0;
+  color: #aaa;
+  font-size: 28px;
+  font-weight: 700;
+  cursor: pointer;
+  background-color: #bb1d3f;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.input {
+  text-align: left;
+  margin: 10px auto;
+  display: flex;
+  flex-direction: column;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.input input[type='text'],
+.input textarea {
+  min-height: 50px;
+  background: #f5f1ff;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 5px;
+  box-sizing: border-box;
+  margin-bottom: 5px;
+  font-size: 14px;
+  width: 100%;
+}
+
+.input textarea {
+  height: 100px;
+}
+
+input:focus-visible,
+textarea:focus-visible {
+  appearance: none;
+  outline: none;
+
+  box-shadow: 0 0 0 3px var(--pal1);
+}
+.validation-message {
+  font-size: 0.9rem;
+  margin-block-start: 0.5rem;
+  color: red;
+}
+
+@media screen and (max-width: 768px) {
+  .notes-input {
+    width: 90%;
+  }
+}
