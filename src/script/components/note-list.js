@@ -2,9 +2,10 @@ class NoteList extends HTMLElement {
   _shadowRoot = null;
   _style = null;
   _gutter = 18;
+  _title = null;
 
   static get observedAttributes() {
-    return ['gutter'];
+    return ['gutter', 'title'];
   }
 
   constructor() {
@@ -32,7 +33,11 @@ class NoteList extends HTMLElement {
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
         gap: ${this._gutter}px;
         justify-content: center;
-      }`;
+      }
+      :host p {
+        text-align: center;
+      }
+      `;
   }
 
   set gutter(value) {
@@ -56,7 +61,7 @@ class NoteList extends HTMLElement {
     this._shadowRoot.appendChild(this._style);
 
     this._shadowRoot.innerHTML += `
-      <h2>Notes</h2>
+      <h2>${this._title}</h2>
       <div class="notes-list">
         <slot>
         </slot>
@@ -67,6 +72,9 @@ class NoteList extends HTMLElement {
     switch (name) {
       case 'gutter':
         this._gutter = newValue;
+        break;
+      case 'title':
+        this._title = newValue;
         break;
     }
 

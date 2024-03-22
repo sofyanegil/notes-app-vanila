@@ -1,13 +1,58 @@
 import './script/components/index.js';
-import home from './script/view/home.js';
+import './styles/styles.css';
+import { addNote, getNotes, getNotesArchived } from './script/data/api.js';
 
-document.addEventListener('DOMContentLoaded', () => {
-  home();
-});
+const showSpinner = () => {
+  document.getElementById('spinner').style.display = 'flex';
+};
+const hideSpinner = () => {
+  document.getElementById('spinner').style.display = 'none';
+};
+const showNotes = async () => {
+  const activeNoteListElement = document.querySelector('note-list:not([id="note-archive"])');
+
+  const archivedNoteListElement = document.querySelector('note-list[id="note-archive"]');
+
+  showSpinner();
+  const activeNotes = await getNotes();
+  const archivedNotes = await getNotesArchived();
+
+  const createNoteElement = (note) => {
+    const noteItemElement = document.createElement('note-item');
+    noteItemElement.note = note;
+    return noteItemElement;
+  };
+
+  const appendNotesToElement = (notes, element) => {
+    notes.forEach((note) => {
+      const noteItemElement = createNoteElement(note);
+      element.appendChild(noteItemElement);
+    });
+  };
+
+  activeNoteListElement.innerHTML = '';
+  archivedNoteListElement.innerHTML = '';
+
+  if (activeNotes.length === 0) {
+    const noActiveNotesParagraph = document.createElement('p');
+    noActiveNotesParagraph.textContent = 'No active notes found.';
+    activeNoteListElement.appendChild(noActiveNotesParagraph);
+  } else {
+    appendNotesToElement(activeNotes, activeNoteListElement);
+  }
+
+  if (archivedNotes.length === 0) {
+    const noArchivedNotesParagraph = document.createElement('p');
+    noArchivedNotesParagraph.textContent = 'No archived notes found.';
+    archivedNoteListElement.appendChild(noArchivedNotesParagraph);
+  } else {
+    appendNotesToElement(archivedNotes, archivedNoteListElement);
+  }
+  hideSpinner();
+};
 
 const inputBookTitle = document.querySelector('#inputBookTitle');
 const inputBookBody = document.querySelector('#inputBookBody');
-
 const setCustomValidity = (element, message) => {
   element.setCustomValidity(message);
 };
@@ -30,7 +75,9 @@ const validateField = (event) => {
 const showValidationMessage = (element) => {
   const errorMessage = element.validationMessage;
   const connectedValidationId = element.getAttribute('aria-describedby');
-  const connectedValidationEl = connectedValidationId ? document.getElementById(connectedValidationId) : null;
+  const connectedValidationEl = connectedValidationId
+    ? document.getElementById(connectedValidationId)
+    : null;
 
   if (connectedValidationEl && errorMessage && !element.validity.valid) {
     connectedValidationEl.innerText = errorMessage;
@@ -39,40 +86,35 @@ const showValidationMessage = (element) => {
   }
 };
 
-const handleFormSubmit = (event) => {
+const handleFormSubmit = async (event) => {
   event.preventDefault();
 
-  const newNote = {
-    id: +new Date(),
-    title: inputBookTitle.value,
-    body: inputBookBody.value,
-    createdAt: new Date().toISOString(),
-    archived: false,
-  };
+  inputBookTitle.addEventListener('change', validateField);
+  inputBookTitle.addEventListener('invalid', validateField);
+  inputBookTitle.addEventListener('blur', (event) => showValidationMessage(event.target));
+  inputBookBody.addEventListener('change', validateField);
+  inputBookBody.addEventListener('invalid', validateField);
+  inputBookBody.addEventListener('blur', (event) => showValidationMessage(event.target));
 
-  document.dispatchEvent(new CustomEvent('add-note', { detail: newNote }));
-  inputBookTitle.value = '';
-  inputBookBody.value = '';
+  if (inputBookTitle.validity.valid && inputBookBody.validity.valid) {
+    const newNote = {
+      title: inputBookTitle.value,
+      body: inputBookBody.value,
+    };
+    await addNote(newNote.title, newNote.body);
+    inputBookTitle.value = '';
+    inputBookBody.value = '';
+    showNotes();
+  }
 };
 
-const handleAddNoteEvent = (e) => {
-  const notesData = JSON.parse(localStorage.getItem('notesData')) || [];
-  notesData.push(e.detail);
-  localStorage.setItem('notesData', JSON.stringify(notesData));
-
-  const noteListElement = document.querySelector('note-list');
-  const NoteItemElement = document.createElement('note-item');
-  NoteItemElement.note = e.detail;
-  noteListElement.append(NoteItemElement);
-};
-
-inputBookTitle.addEventListener('change', validateField);
-inputBookTitle.addEventListener('invalid', validateField);
-inputBookTitle.addEventListener('blur', (event) => showValidationMessage(event.target));
-
-inputBookBody.addEventListener('change', validateField);
-inputBookBody.addEventListener('invalid', validateField);
-inputBookBody.addEventListener('blur', (event) => showValidationMessage(event.target));
-
+document.addEventListener('DOMContentLoaded', () => showNotes());
 document.addEventListener('submit', handleFormSubmit);
-document.addEventListener('add-note', handleAddNoteEvent);
+
+document.addEventListener('click', (event) => {
+  if (event.target.id === 'bookSubmit') {
+    handleFormSubmit(event);
+  }
+});
+
+export { showNotes };

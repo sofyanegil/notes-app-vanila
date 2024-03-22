@@ -1,4 +1,7 @@
 import showFormattedDate from '../utils/date.js';
+import { deleteNote, archiveNote, unarchiveNote } from '../data/api.js';
+import { showNotes } from '../../app.js';
+
 class NoteItem extends HTMLElement {
   _shadowRoot = null;
   _style = null;
@@ -39,6 +42,7 @@ class NoteItem extends HTMLElement {
         background-color: var(--pal4);
         border-left: 5px solid var(--pal1);
         padding: 20px;
+        min-height: 200px;
       }
 
       .notes-item__title {
@@ -65,6 +69,42 @@ class NoteItem extends HTMLElement {
         color: #3e3939;
         line-height: 1.2;
       }
+
+      .notes-item__button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 10px;
+        padding: 10px;
+      }
+
+      .btn {
+        min-width: 44px;
+        min-height: 44px;
+        color: #fff;
+        padding: 10px;
+        border-radius: 10px;
+        border: 0;
+        cursor: pointer;
+        font-size: 0.9rem;
+        margin: 0 5px;
+      }
+
+      .btn-primary {
+        background-color: var(--pal2);
+      }
+
+      .btn-primary:hover {
+        background-color: #728c7b;
+      }
+
+      .btn-danger {
+        background-color: var(--pal5);
+      }
+
+      .btn-danger:hover {
+        background-color: #bb1d3f;
+      }
       `;
   }
 
@@ -80,8 +120,33 @@ class NoteItem extends HTMLElement {
         <h3 class="notes-item__title">${this.note.title}</h3>
         <p class="notes-item__text">${this.note.body}</p>
       </div>
+      <div class="notes-item__button">
+        <button type="button" id="archiveButton" class="btn btn-primary">${this.note.archived ? 'Unarchive' : 'Archive'}</button>
+        <button type="button" class="btn btn-danger" id="deleteButton" data-note-id="${this.note.id}">Delete</button>
+      </div>
     </article>
     `;
+
+    const archiveButton = this._shadowRoot.querySelector('#archiveButton');
+    const deleteButton = this._shadowRoot.querySelector('#deleteButton');
+
+    deleteButton.addEventListener('click', async (event) => {
+      event.preventDefault();
+      await deleteNote(this.note.id);
+      await showNotes();
+      showNotes();
+    });
+
+    archiveButton.addEventListener('click', async (event) => {
+      event.preventDefault();
+      if (this.note.archived) {
+        await unarchiveNote(this.note.id);
+        showNotes();
+      } else {
+        await archiveNote(this.note.id);
+        showNotes();
+      }
+    });
   }
 }
 
